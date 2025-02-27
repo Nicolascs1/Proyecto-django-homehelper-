@@ -1,0 +1,216 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+<br>
+<!-- Mensajes -->
+{% if messages %}
+    {% for message in messages %}
+        <div class="alert alert-success mt-4" style="max-width: 70%;margin: auto;"><p style="font-size: 30px;">{{ message }}</p></div>
+    {% endfor %}
+{% endif %}
+<script>
+    const regionesComunas = {{ regiones_comunas|safe }};
+    document.addEventListener('DOMContentLoaded', function () {
+        const regionSelect = document.getElementById('id_region');
+        const comunaSelect = document.getElementById('id_comuna');
+
+        function updateComunas(selectedComuna = null) {
+            const selectedRegion = regionSelect.value;
+            const comunas = regionesComunas[selectedRegion] || [];
+            comunaSelect.innerHTML = comunas.map(comuna => {
+                const selected = comuna === selectedComuna ? 'selected' : '';
+                return `<option value="${comuna}" ${selected}>${comuna}</option>`;
+            }).join('');
+        }
+
+        // Inicializa las comunas al cargar la página con el valor guardado
+        updateComunas("{{ user_form.instance.comuna }}");
+
+        // Cambia las comunas cuando se selecciona otra región
+        regionSelect.addEventListener('change', function () {
+            updateComunas();
+        });
+    });
+</script>
+
+<!-- Contenedor principal -->
+<div class="container mt-4" style="padding: 0  0 50px 0;">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10 col-sm-12">
+            <div class="card" style="background-color: rgb(244, 244, 244); padding: 60px;">
+                <div class="card-body">
+                    <div class="text-end mb-3">
+                        <a class="btn btn-primary" href="{% url 'verperfil' %}">Volver a mi perfil</a>
+                    </div>
+                    <h3 class="text-center my-1">Editar Perfil</h3>
+                    <br>
+
+                    <!-- Formulario para actualizar el perfil -->
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="update_profile">
+
+                        <div class="row">
+                            <!-- Foto de perfil -->
+                            <div class="col-md-12 text-center mb-4">
+                                {% if profile_form.instance.profile_picture %}
+                                    <img src="{{ profile_form.instance.profile_picture.url }}" alt="Foto de Perfil"
+                                        class="rounded-circle img-fluid" style="width: 150px; height: 150px; object-fit: cover;">
+                                {% else %}
+                                    <img src="{{ MEDIA_URL }}profile_default.png" alt="Foto Predeterminada"
+                                        class="rounded-circle img-fluid" style="width: 150px; height: 150px; object-fit: cover;">
+                                {% endif %}
+                                <div class="form-group mt-3" style="text-align: start;">
+                                    <label for="id_profile_picture">Actualiza tu foto de perfil:</label>
+                                    <input type="file" name="{{ profile_form.profile_picture.name }}" id="{{ profile_form.profile_picture.id }}" class="form-control">
+                                </div>
+                            </div>
+                            
+
+                            <!-- Información del Usuario -->
+                            <div class="col-md-6 mb-3">
+                                <label for="id_first_name">Nombres:</label>
+                                {{ user_form.first_name }}
+                                {% if user_form.first_name.errors %}
+                                    <div class="text-danger">{{ user_form.first_name.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="id_last_name">Apellidos:</label>
+                                {{ user_form.last_name }}
+                                {% if user_form.last_name.errors %}
+                                    <div class="text-danger">{{ user_form.last_name.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="id_email">Correo Electrónico:</label>
+                                {{ user_form.email }}
+                                {% if user_form.email.errors %}
+                                    <div class="text-danger">{{ user_form.email.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="id_telefono">Teléfono:</label>
+                                {{ user_form.telefono }}
+                                {% if user_form.telefono.errors %}
+                                    <div class="text-danger">{{ user_form.telefono.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="id_region">Región:</label>
+                                {{ user_form.region }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="id_comuna">Comuna:</label>
+                                {{ user_form.comuna }}
+                            </div>
+
+                            <div class="col-md-12 mb-3">
+                                <label for="id_location">Dirección:</label>
+                                {{ user_form.location }}
+                                {% if user_form.location.errors %}
+                                    <div class="text-danger">{{ user_form.location.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-md-12 mb-3">
+                                <label for="id_bio">Biografía:</label>
+                                {{ profile_form.bio }}
+                                {% if profile_form.bio.errors %}
+                                    <div class="text-danger">{{ profile_form.bio.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Redes Sociales -->
+                            <h5 class="card-title mt-4">Redes Sociales</h5>
+                            <div class="col-md-6 mb-3">
+                                <label for="id_linkedin">LinkedIn:</label>
+                                {{ profile_form.linkedin }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="id_facebook">Facebook:</label>
+                                {{ profile_form.facebook }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="id_twitter">Twitter:</label>
+                                {{ profile_form.twitter }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="id_instagram">Instagram:</label>
+                                {{ profile_form.instagram }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="id_website">Página Web:</label>
+                                {{ profile_form.website }}
+                            </div>
+
+                            {% if is_professional %}
+                            <!-- Campo para editar Especialidades -->
+                            <div class="col-md-12 mb-3">
+                                <label for="id_specialties">Especialidades:</label>
+                                {{ profile_form.specialties }}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Botón para actualizar perfil -->
+                        <div class="text-center mt-4">
+                            <button type="submit" class="btn btn-primary w-50 mb-2">Guardar Cambios</button>
+                            <a href="{% url 'verperfil' %}" class="btn btn-danger w-50">Cancelar</a>
+                        </div>
+                    </form>
+
+                    <br><hr><br>
+
+                    <!-- Credenciales -->
+                    {% if is_professional %}
+                    <h5>Mis Credenciales</h5>
+                    {% if credentials %}
+                    <ul class="list-group">
+                        {% for credential in credentials %}
+                        <li class="list-group-item d-flex flex-wrap justify-content-between align-items-center">
+                            <span>{{ credential.title }}</span>
+                            <div class="d-flex gap-2">
+                                <a href="{{ credential.file.url }}" target="_blank" class="btn btn-primary btn-sm">Ver</a>
+                                <form method="post">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="delete_credential">
+                                    <input type="hidden" name="delete_credential_id" value="{{ credential.id }}">
+                                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('¿Estás seguro de que deseas eliminar esta credencial?');">Eliminar</button>
+                                </form>
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <p>No tienes credenciales subidas aún.</p>
+                    {% endif %}
+
+                    <!-- Formulario para subir credenciales -->
+                    <h5 class="mt-4">Subir Credencial</h5>
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="add_credential">
+                        <div class="form-group mt-3">
+                            <label for="title">Título de la Credencial:</label>
+                            <input type="text" name="title" id="title" class="form-control" placeholder="Título de la Credencial">
+                        </div>
+                        <div class="form-group mt-3">
+                            <label for="description">Descripción:</label>
+                            <textarea name="description" id="description" rows="3" class="form-control" placeholder="Descripción de la Credencial (opcional)"></textarea>
+                        </div>
+                        <div class="form-group d-flex flex-wrap gap-2 mt-3">
+                            <input type="file" name="file" id="file" class="form-control w-100" accept=".pdf, image/*">
+                            <button type="submit" class="btn btn-success w-100">Subir</button>
+                        </div>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

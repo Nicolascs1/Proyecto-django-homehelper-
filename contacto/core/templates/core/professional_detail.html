@@ -1,0 +1,216 @@
+<!-- TEMPLATE PERFIL PROFESIONAL DESDE LISTA -->
+{% extends 'core/base.html' %}
+
+
+{% block content %} 
+<div class="dd-flex flex-column align-items-center" style="min-height: 80vh; padding: 20px 0;">
+
+    <div class="card w-100" style="max-width: 100%; background-color: rgba(255, 255, 255, 0.75);">
+        <div class="card-body" style="padding: 40px;">
+         
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h1>Perfil de {{ profile.user.first_name }} {{ profile.user.last_name }}</h1>
+            <a class="btn btn-primary" href="{% url 'lista' %}">Volver a la lista</a>
+        </div>
+            
+            <hr>
+ 
+            <div class="d-flex flex-column flex-lg-row flex-wrap" style="min-height: 80vh; gap: 20px; padding: 20px;">
+                <!-- DETALLES DE CONTACTO -->
+                    <div class="card flex-fill" style="padding: 0px;">
+                        <div class="card-body" style="padding: 40px;">
+                          
+                            
+                            
+                            <!-- Foto de perfil actual -->
+                            <div class="text-center">
+                                
+                                    <img src="{{ profile.profile_picture.url }}" alt="Foto de Perfil" 
+                                         style="width: 200px; height: 200px; border-radius: 50%; object-fit: cover;">
+                              
+                            </div>
+                            <br>
+                            <div style="text-align: center;">
+                                <h2>
+                                    {{ user.first_name }} {{ user.last_name }}
+                                </h2>
+                                <h4>
+                                    {% for specialty in profile.specialties.all %}
+                                        {{ specialty.name }}{% if not forloop.last %}, {% endif %}
+                                    {% empty %}
+                                        Sin especialidades
+                                    {% endfor %}
+                                </h4>
+                                
+                                <div style="margin: 5px auto;">
+                                    <strong>Calificación:</strong>
+                                    <span id="rating-stars" style="color: #FFD700; font-size: 1.2em;"></span>
+                                    ({{ average_rating|default:0 }}/5)
+                                </div>
+                                
+                                <script>
+                                    document.addEventListener('DOMContentLoaded', function () {
+                                        try {
+                                            // Capturamos la calificación promedio desde el servidor
+                                            const averageRating = parseFloat({{ average_rating|default:0 }});
+                                            const maxStars = 5; // Número máximo de estrellas
+                                            const starContainer = document.getElementById('rating-stars');
+                                
+                                            // Validar que el contenedor y el promedio estén correctamente definidos
+                                            if (!starContainer || isNaN(averageRating)) {
+                                                console.error("No se encontró el contenedor o el averageRating no es válido.");
+                                                return;
+                                            }
+                                
+                                            // Generar las estrellas
+                                            for (let i = 1; i <= maxStars; i++) {
+                                                const star = document.createElement('span');
+                                                if (i <= Math.floor(averageRating)) {
+                                                    star.innerHTML = '&#9733;'; // Estrella llena
+                                                } else if (i - 1 < averageRating) {
+                                                    star.innerHTML = '&#9734;'; // Estrella vacía (opcional: implementar estrella media)
+                                                } else {
+                                                    star.innerHTML = '&#9734;'; // Estrella vacía
+                                                }
+                                                starContainer.appendChild(star);
+                                            }
+                                        } catch (error) {
+                                            console.error("Error generando las estrellas:", error);
+                                        }
+                                    });
+                                </script>
+                                
+
+                                <p style="margin: 5px auto;"><strong>Acerca de mí:</strong> {{ profile.bio }}</p>
+                            </div>
+                            
+                            <hr>
+                            <div style="width: 70%; margin: 20px auto; text-align: left;">
+                                
+                                <h4 style="margin: 10px auto;">Datos de usuario:</h4>
+                                    <ul style="list-style-type: none; padding: 0;">
+                                        <li >
+                                            <strong>Tipo de usuario:</strong>
+                                            {% if is_professional %}
+                                                Profesional
+                                            {% elif is_client %}
+                                                Cliente
+                                            {% else %}
+                                                Sin especificar
+                                            {% endif %}
+                                        </li>
+                                        <li ><strong>Teléfono:</strong> {{ user.telefono }}</li>
+                                        <li ><strong>Email:</strong> {{ user.email }}</li>
+                                        <li ><strong>Ubicación:</strong> {{ user.location }}</li>
+                                        <li ><strong>Comuna:</strong> {{ user.comuna }}</li>
+                                        <li ><strong>Región:</strong> {{ user.region }}</li>
+                                    </ul>
+                                
+                                
+                                <h4 style="margin: 10px auto;">Redes Sociales:</h4>
+                                    <ul style="list-style: none; padding: 0;">
+                                        {% if profile.linkedin %}
+                                        <li><strong>LinkedIn:</strong> <a href="{{ profile.linkedin }}" target="_blank">{{ profile.linkedin }}</a></li>
+                                        {% endif %}
+                                        {% if profile.facebook %}
+                                        <li><strong>Facebook:</strong> <a href="{{ profile.facebook }}" target="_blank">{{ profile.facebook }}</a></li>
+                                        {% endif %}
+                                        {% if profile.twitter %}
+                                        <li><strong>Twitter:</strong> <a href="{{ profile.twitter }}" target="_blank">{{ profile.twitter }}</a></li>
+                                        {% endif %}
+                                        {% if profile.instagram %}
+                                        <li><strong>Instagram:</strong> <a href="{{ profile.instagram }}" target="_blank">{{ profile.instagram }}</a></li>
+                                        {% endif %}
+                                        {% if profile.website %}
+                                        <li><strong>Página Web:</strong> <a href="{{ profile.website }}" target="_blank">{{ profile.website }}</a></li>
+                                        {% endif %}
+                                    </ul>
+
+                                <!-- planilla profesional -->
+                                
+                                
+                          
+
+                            </div>
+                            
+                            <div style="text-align: center;">
+                                <a href="{% url 'profile_credentials' user.id %}" class="btn btn-primary">Ver Credenciales</a>
+                                <a href="https://wa.me/{{ user.telefono }}?text=Hola%20{{ user.first_name }}%2C%20te%20contacto%20desde%20HomeHelper"
+                                   target="_blank" class="btn btn-success">
+                                    Enviar WhatsApp
+                                </a>
+                                <a href="{% url 'chat:create_chat' user.id %}" class="btn btn-primary">
+                                    Iniciar Chat
+                                </a>
+
+                               
+                            </div>
+                            
+                            <!-- Botón de cotizar -->
+                            
+
+                        </div>
+                    </div>
+            
+                    <!-- RESEÑA -->
+                    <div class="card flex-fill" style="padding: 0px;">
+                        <div class="card-body" style="padding: 40px;">
+                            <div class="container">
+                                
+                                <h2>Reseñas</h2>
+                                {% if reviews %}
+                                    <ul>
+                                        {% for review in reviews %}
+                                            <li>
+                                                <strong>{{ review.reviewer.first_name }} {{ review.reviewer.last_name }}</strong> - {{ review.rating }}/5
+                                                <p>{{ review.comment }}</p>
+                                                <small>Fecha: {{ review.created_at|date:"d M Y H:i" }}</small>
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                {% else %}
+                                    <p>No hay reseñas para este profesional.</p>
+                                {% endif %}
+                    
+                                <h2>Escribe una reseña</h2>
+                                {% if has_quotation %}
+                                    <form method="post" class="p-4 border rounded shadow bg-light" style="max-width: 600px; margin: auto;">
+                                        {% csrf_token %}
+                                        
+                                        <div class="mb-3">
+                                            <label for="id_rating" class="form-label">{{ form.rating.label }}</label>
+                                            {{ form.rating }}
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <label for="id_comment" class="form-label">{{ form.comment.label }}</label>
+                                            {{ form.comment }}
+                                        </div>
+                                        
+                                        <button type="submit" class="btn btn-warning w-100">Enviar reseña</button>
+                                    </form>
+                                {% else %}
+                                    <p class="text-danger">Primero debes enviar o recibir una cotización de este usuario para escribir una reseña.</p>
+                                    <p class="text-danger">Inicia un chat para cotizar.</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+
+
+                </div>
+            
+
+
+
+        
+        </div>
+
+    </div>
+
+</div>
+
+           
+
+{% endblock %}

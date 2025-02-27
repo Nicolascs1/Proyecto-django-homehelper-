@@ -1,0 +1,98 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+<div class="d-flex" style="min-height: 80vh; flex-direction: column; padding: 20px 0 20px 0;">
+
+    <div class="card mx-auto " style="width: 100%; padding: 0px; background-color: rgba(255, 255, 255, 0.75) ;">
+        <div class="card-body" style="padding: 40px;">
+
+            <h1 class="lato-bold">Mis conversaciones</h1>
+            <hr>
+            <br>
+
+            <div>
+
+               
+                <!-- DETALLES DE CONTACTO -->
+                <div class="card" style="width: 100%; padding: 0px;">
+                    <div class="card-body" style="padding: 40px;">
+                        <h3 style="text-align: center;">Conversaciones anteriores con otros usuarios</h3>
+
+                        <div style="width: 100%; padding: 0px;">
+                            <div class="card-body" style="padding: 20px;">
+
+                                <div class="conversations d-flex flex-wrap justify-content-start gap-3" style="max-width: 1000px; margin: auto;">
+                                    {% for chat in chats %}
+                                    <div class="card" style="flex: 1 1 calc(33.333% - 20px); max-width: calc(33.333% - 20px); min-width: 300px; padding: 15px;">
+                                        <h4>{{ chat.other_participant_name }}</h4>
+                                        <p>Último mensaje: {{ chat.last_message }}</p>
+                                        <p>
+                                            <small>
+                                                Fecha: {{ chat.last_message_time |slice:":10"}}<br>
+                                                Hora: {{ chat.last_message_time|slice:"11:"}}
+                                            </small>
+                                        </p>
+                                        <div class="d-flex justify-content-end gap-2">
+                                            <a href="{% url 'chat:chat_room' chat.room.name %}" class="btn btn-primary">Ir al chat</a>
+                                            <button class="btn btn-danger delete-chat-btn" data-room-name="{{ chat.room.name }}">Eliminar</button>
+                                        </div>
+                                    </div>
+                
+                                    <script>
+                                        document.querySelectorAll(".delete-chat-btn").forEach(button => {
+                                            button.addEventListener("click", function () {
+                                                const roomName = this.getAttribute("data-room-name");
+                                                const confirmation = confirm("¿Estás seguro de que deseas eliminar esta conversación?");
+                                                if (confirmation) {
+                                                    fetch(`/chat/delete-chat/${roomName}/`, {
+                                                        method: "POST",
+                                                        headers: {
+                                                            "X-CSRFToken": "{{ csrf_token }}",
+                                                        },
+                                                    })
+                                                    .then(response => response.json())
+                                                    .then(data => {
+                                                        if (data.success) {
+                                                            alert("Conversación eliminada.");
+                                                            this.closest(".card").remove(); // Eliminar la card de la sala
+                                                        } else {
+                                                            alert(data.error || "No se pudo eliminar la conversación.");
+                                                        }
+                                                    })
+                                                    .catch(error => {
+                                                        console.error("Error al eliminar la conversación:", error);
+                                                        alert("Ocurrió un error al intentar eliminar la conversación.");
+                                                    });
+                                                }
+                                            });
+                                        });
+                                    </script>
+                                    
+                
+                                    {% endfor %}
+                                </div>
+
+
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            
+
+
+
+                
+                
+            </div>
+            
+            
+
+        </div>
+    </div>
+</div>
+
+
+
+{% endblock %}
+

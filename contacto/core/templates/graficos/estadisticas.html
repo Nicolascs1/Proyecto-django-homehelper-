@@ -1,0 +1,32 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+<div style="padding: 20px 0 40px 0;">
+    <div class="card" style="padding: 100px;">
+        <div class="container my-4">
+            <h2 class="text-center">Estadísticas Generales</h2>
+            
+            <!-- Filas para estadísticas -->
+            <div class="row my-4">
+                <div class="col-md-6">
+                    <h4>Visitas Recibidas</h4>
+                    <p>Tu perfil ha sido visitado <strong>{{ visit_count }}</strong> veces.</p>
+                </div>
+            </div>
+            
+            <!-- Gráficos lado a lado -->
+            <div class="row my-4">
+                <div class="col-md-6 text-center">
+                    <h4>Gráfico Mensual</h4>
+                    <img src="data:image/png;base64,{{ monthly_graphic }}" class="img-fluid" alt="Gráfico Mensual">
+                </div>
+                <div class="col-md-6 text-center">
+                    <h4>Gráfico Semanal</h4>
+                    <img src="data:image/png;base64,{{ weekly_graphic }}" class="img-fluid" alt="Gráfico Semanal">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

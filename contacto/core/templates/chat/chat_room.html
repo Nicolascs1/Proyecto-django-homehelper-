@@ -1,0 +1,376 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+<div class="dd-flex flex-column align-items-center" style="min-height: 80vh; padding: 20px 0;">
+
+    <div class="card w-100" style="max-width: 100%; background-color: rgba(255, 255, 255, 0.75);">
+        <div class="card-body" style="padding: 40px;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h1>Conversación con {{ other_user.first_name|title }} {{ other_user.last_name|title }}</h1>
+                <a class="btn btn-primary" href="{% url 'lista' %}">Volver a la lista</a>
+            </div>
+            <hr>
+            
+
+            
+            <div class="d-flex flex-column flex-lg-row flex-wrap" style="min-height: 80vh; gap: 20px; padding: 20px;">
+                <!-- DETALLES DE CONTACTO -->
+                <div class="card flex-fill" style="padding: 0px;">
+                    <div class="card-body" style="padding: 40px;">
+                          
+                            
+                            <div class="d-flex align-items-center justify-content-between" style="gap: 10px;">
+                                <!-- Título del usuario -->
+                                
+                                <h3>Detalles del contacto</h3>
+                                
+                                <!-- Botón para ver detalles -->
+                                <a class="btn btn-warning" href="{% url 'professional_detail' other_user.id %}">
+                                    Ver perfil
+                                </a>
+                            </div>
+
+
+                            <hr>
+                            <!-- Foto de perfil actual -->
+                            <div class="text-center">
+                                {% if other_user_profile_picture %}
+                                    <img src="{{ other_user_profile_picture }}" alt="Foto de Perfil" 
+                                         style="width: 200px; height: 200px; border-radius: 50%; object-fit: cover;">
+                                {% else %}
+                                    <img src="{{ MEDIA_URL }}profile_default.png" alt="Foto Predeterminada" 
+                                         style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover;">
+                                {% endif %}
+                            </div>
+                            <br>
+                            <div style="text-align: center;">
+                                <h2>
+                                    {{ other_user.first_name|title }} {{ other_user.last_name|title }}
+                                </h2>
+                                <h4>
+                                    {% for specialty in other_user.profile.specialties.all %}
+                                        {{ specialty.name }}{% if not forloop.last %}, {% endif %}
+                                    {% empty %}
+                                        Cliente
+                                    {% endfor %}
+                                </h4>
+                                <div style="margin: 5px auto;">
+                                    <strong>Calificación:</strong>
+                                    <span id="rating-stars" style="color: #FFD700; font-size: 1.2em;"></span>
+                                    ({{ average_rating|default:0 }}/5)
+                                </div>
+                                
+                                <script>
+                                    document.addEventListener('DOMContentLoaded', function () {
+                                        try {
+                                            // Capturamos la calificación promedio desde el servidor
+                                            const averageRating = parseFloat({{ average_rating|default:0 }});
+                                            const maxStars = 5; // Número máximo de estrellas
+                                            const starContainer = document.getElementById('rating-stars');
+                                
+                                            // Validar que el contenedor y el promedio estén correctamente definidos
+                                            if (!starContainer || isNaN(averageRating)) {
+                                                console.error("No se encontró el contenedor o el averageRating no es válido.");
+                                                return;
+                                            }
+                                
+                                            // Generar las estrellas
+                                            for (let i = 1; i <= maxStars; i++) {
+                                                const star = document.createElement('span');
+                                                if (i <= Math.floor(averageRating)) {
+                                                    star.innerHTML = '&#9733;'; // Estrella llena
+                                                } else if (i - 1 < averageRating) {
+                                                    star.innerHTML = '&#9734;'; // Estrella vacía (opcional: implementar estrella media)
+                                                } else {
+                                                    star.innerHTML = '&#9734;'; // Estrella vacía
+                                                }
+                                                starContainer.appendChild(star);
+                                            }
+                                        } catch (error) {
+                                            console.error("Error generando las estrellas:", error);
+                                        }
+                                    });
+                                </script>
+                                
+
+                            </div>
+                            
+                            <hr>
+                            <div style="width: 70%; margin: 20px auto; text-align: left;">
+                                
+                                <h4 style="margin: 10px auto;">Datos de usuario:</h4>
+                                    <ul style="list-style-type: none; padding: 0;">
+                                        
+                                        <li ><strong>Teléfono:</strong> {{ other_user.telefono }}</li>
+                                        <li ><strong>Email:</strong> {{ other_user.email }}</li>
+                                        <li ><strong>Ubicación:</strong> {{ other_user.location }}</li>
+                                        <li ><strong>Comuna:</strong> {{ other_user.comuna }}</li>
+                                        <li ><strong>Región:</strong> {{ other_user.region }}</li>
+                                    </ul>
+                                    
+                               
+                                
+                            </div>
+                            <hr>
+                            <div style="text-align: center;">
+                                <a href="{% url 'profile_credentials' other_user.id %}" class="btn btn-primary">Ver Credenciales</a>
+                                <a href="https://wa.me/{{ other_user.telefono }}?text=Hola%20{{ other_user.first_name }}%2C%20te%20contacto%20desde%20HomeHelper"
+                                   target="_blank" class="btn btn-success">
+                                    Enviar WhatsApp
+                                </a>
+                                
+                            </div>
+                            
+                            <!-- Botón de cotizar -->
+                            
+
+                        </div>
+                    </div>
+            
+                    <!-- CHAT -->
+                    <div class="card flex-fill" style="padding: 0px;">
+                        <div class="card-body" style="padding: 40px;">
+                            <div class="container">
+                                <h3>Chat con {{ other_user.first_name|title }} {{ other_user.last_name|title }}</h3>
+                                <br>
+                                
+                                
+                                
+                                
+                                <div id="chat-log" style="height: 400px; overflow-y: scroll; border: 1px solid #ccc; padding: 10px;">
+                                    <!-- Los mensajes se cargarán aquí -->
+                                </div>
+                                
+                                <form id="chat-form">
+                                    {% csrf_token %}
+                                    <div class="input-group">
+                                        <input type="text" id="message-input" name="message" class="form-control" placeholder="Escribe tu mensaje..." required>
+                                        <button type="submit" class="btn btn-primary">Enviar</button>
+                                    </div>
+                                </form>
+            
+                                <script>
+                                    const roomName = "{{ roomName }}";
+                                    const chatLog = document.getElementById("chat-log");
+                                    const chatForm = document.getElementById("chat-form");
+                                    const messageInput = document.getElementById("message-input");
+                                    const currentUserId = "{{ request.user.id }}"; // ID del usuario actual
+                                
+                                    // Función para formatear fecha y hora
+                                    function formatTimestamp(timestamp) {
+                                        const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+                                        return new Date(timestamp).toLocaleString('es-ES', options);
+                                    }
+                                
+                                    // Función para cargar mensajes desde el servidor
+                                    function loadMessages() {
+                                        fetch(`/chat/${roomName}/get_messages/`)
+                                            .then(response => response.json())
+                                            .then(messages => {
+                                                chatLog.innerHTML = ""; // Limpiar el contenido actual
+                                                messages.forEach(msg => {
+                                                    const isCurrentUser = msg.sender__id === parseInt(currentUserId); // Comparar ID del remitente
+                                                    const messageElement = document.createElement("p");
+                                                    messageElement.innerHTML = `
+                                                        <strong style="color: ${isCurrentUser ? 'black' : 'blue'};">
+                                                            ${msg.sender__first_name} ${msg.sender__last_name}:
+                                                        </strong> 
+                                                        ${msg.content} 
+                                                        <span style="font-size: 0.8em; color: gray;">(${formatTimestamp(msg.timestamp)})</span>
+                                                    `;
+                                                    chatLog.appendChild(messageElement);
+                                                });
+                                                chatLog.scrollTop = chatLog.scrollHeight; // Desplazar al final
+                                            });
+                                    }
+                                
+                                    // Cargar mensajes al inicio
+                                    loadMessages();
+                                
+                                    // Manejar envío de mensajes
+                                    chatForm.addEventListener("submit", function (e) {
+                                        e.preventDefault();
+                                        const message = messageInput.value.trim();
+                                
+                                        if (message) {
+                                            fetch(`/chat/${roomName}/send_message/`, {
+                                                method: "POST",
+                                                headers: {
+                                                    "X-CSRFToken": "{{ csrf_token }}",
+                                                    "Content-Type": "application/x-www-form-urlencoded",
+                                                },
+                                                body: new URLSearchParams({ message: message }),
+                                            })
+                                            .then(response => response.json())
+                                            .then(data => {
+                                                if (!data.error) {
+                                                    // Agregar el nuevo mensaje al chat
+                                                    const messageElement = document.createElement("p");
+                                                    messageElement.innerHTML = `
+                                                        <strong style="color: black;">
+                                                            {{ request.user.first_name }} {{ request.user.last_name }}:
+                                                        </strong> 
+                                                        ${data.content} 
+                                                        <span style="font-size: 0.8em; color: gray;">(${formatTimestamp(new Date())})</span>
+                                                    `;
+                                                    chatLog.appendChild(messageElement);
+                                                    chatLog.scrollTop = chatLog.scrollHeight; // Desplazar al final
+                                                    messageInput.value = ""; // Limpia el campo de entrada
+                                                }
+                                            })
+                                            .catch(error => console.error("Error al enviar el mensaje:", error));
+                                        }
+                                    });
+                                
+                                    // Recargar mensajes periódicamente
+                                    setInterval(loadMessages, 2000); // Recarga cada 5 segundos
+                                </script>
+                            </div>
+                            <br>
+                            <br>
+                            <div style="display: flex; justify-content: center;">
+                                <button id="cotizarBtn" class="btn btn-warning" style="min-width: 300px;" data-recipient="{{ other_user.id }}">Cotizar</button>
+
+                                <script>
+                                    document.getElementById('cotizarBtn').addEventListener('click', function () {
+                                        const recipientId = this.getAttribute('data-recipient');
+                                        if (confirm('¿Quieres solicitar una cotización?')) {
+                                            fetch(`/register-quotation/${recipientId}/`, {
+                                                method: 'POST',
+                                                headers: {
+                                                    'X-CSRFToken': '{{ csrf_token }}',  // Incluye el token CSRF
+                                                    'Content-Type': 'application/json'
+                                                }
+                                            })
+                                            .then(response => response.json())
+                                            .then(data => {
+                                                if (data.message) {
+                                                    alert(data.message);  // Muestra mensaje de éxito
+                                                }
+                                            })
+                                            .catch(error => {
+                                                console.error('Error:', error);
+                                                alert('Ocurrió un error al solicitar la cotización.');
+                                            });
+                                        }
+                                    });
+                                </script>
+                            </div>
+
+                            <BR></BR>
+                            
+                         
+                            <!-- CONFIRMAR O RECHAZAR COTIZACION -->
+                           
+                            <div  id="pendingQuotationContainer" style="display: flex; justify-content: center;">
+                                <p id="noPendingQuotationMessage">No tienes cotizaciones pendientes por confirmar.</p>
+                            </div>
+                            
+                            <script>
+                                // Función para verificar cotizaciones pendientes
+                                function checkPendingQuotation() {
+                                    fetch('/check-pending-quotation/')
+                                        .then(response => response.json())
+                                        .then(data => {
+                                            const container = document.getElementById('pendingQuotationContainer');
+                                            const noPendingMessage = document.getElementById('noPendingQuotationMessage');
+                            
+                                            if (data.has_pending) {
+                                                // Mostrar botones de confirmación y rechazo si hay cotización pendiente
+                                                container.innerHTML = `
+                                                <div style="max-width: 100%; text-align: center; padding: 10px;">
+                                                    <!-- Texto sobre los botones -->
+                                                    <p style="margin-bottom: 20px;">Cotización pendiente enviada por ${data.sender_name}.</p>
+
+                                                    <!-- Contenedor de botones -->
+                                                    <div style="display: flex; flex-direction: column; align-items: center; gap: 10px; width: 100%;">
+                                                        <button id="confirmBtn" data-quotation-id="${data.quotation_id}" 
+                                                                class="btn btn-success" 
+                                                                style="min-width: 200px; width: 100%; max-width: 300px;">
+                                                            Confirmar Cotización
+                                                        </button>
+                                                        <button id="rejectBtn" data-quotation-id="${data.quotation_id}" 
+                                                                class="btn btn-danger" 
+                                                                style="min-width: 200px; width: 100%; max-width: 300px;">
+                                                            Rechazar Cotización
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            `;
+
+
+
+
+                            
+                                                // Agregar eventos a los botones
+                                                document.getElementById('confirmBtn').addEventListener('click', function () {
+                                                    confirmQuotation(data.quotation_id);
+                                                });
+                            
+                                                document.getElementById('rejectBtn').addEventListener('click', function () {
+                                                    rejectQuotation(data.quotation_id);
+                                                });
+                            
+                                                noPendingMessage.style.display = 'none';
+                                            } else {
+                                                // Mostrar mensaje de que no hay cotización pendiente
+                                                container.innerHTML = '<p id="noPendingQuotationMessage">No tienes cotizaciones pendientes por confirmar.</p>';
+                                            }
+                                        })
+                                        .catch(error => console.error('Error al verificar cotizaciones:', error));
+                                }
+                            
+                                // Función para confirmar cotización
+                                function confirmQuotation(quotationId) {
+                                    if (confirm('¿Deseas confirmar esta cotización?')) {
+                                        fetch(`/confirm-quotation/${quotationId}/`, {
+                                            method: 'POST',
+                                            headers: {
+                                                'X-CSRFToken': '{{ csrf_token }}',
+                                                'Content-Type': 'application/json'
+                                            }
+                                        })
+                                        .then(response => response.json())
+                                        .then(data => {
+                                            alert(data.message);
+                                            location.reload(); // Recargar la página después de confirmar
+                                        })
+                                        .catch(error => console.error('Error al confirmar cotización:', error));
+                                    }
+                                }
+                            
+                                // Función para rechazar cotización
+                                function rejectQuotation(quotationId) {
+                                    if (confirm('¿Deseas rechazar esta cotización?')) {
+                                        fetch(`/reject-quotation/${quotationId}/`, {
+                                            method: 'POST',
+                                            headers: {
+                                                'X-CSRFToken': '{{ csrf_token }}',
+                                                'Content-Type': 'application/json'
+                                            }
+                                        })
+                                        .then(response => response.json())
+                                        .then(data => {
+                                            alert(data.message);
+                                            location.reload(); // Recargar la página después de rechazar
+                                        })
+                                        .catch(error => console.error('Error al rechazar cotización:', error));
+                                    }
+                                }
+                            
+                                // Llamar a la función de verificación cada 5 segundos
+                                setInterval(checkPendingQuotation, 2000);
+                            </script>
+                            
+                            
+
+                        </div>
+                    </div>
+                </div>
+            
+            
+
+        </div>
+    </div>
+</div>
+{% endblock %}

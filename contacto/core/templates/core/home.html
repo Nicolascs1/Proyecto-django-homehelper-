@@ -1,0 +1,126 @@
+{% extends 'core/base.html' %}
+
+{% block content %} 
+<div class="card" style="background-color: #ffffff6a;">
+    <div class="d-flex flex-column align-items-center" style="min-height: 100vh; color: #fff;">
+
+        <!-- Sección Principal -->
+        <!-- Sección Principal -->
+        <div class="container py-5">
+            <div class="row justify-content-center">
+                <div class="col-lg-8 text-center">
+                    <div style="padding: 40px;">
+                        <!-- Título llamativo -->
+                        <h1 class="mb-4" style="color: #000000; font-weight: bold;">
+                            HOMEHELPER: ¡Un amigo para tu hogar!
+                        </h1>
+                        {% load static %}
+                        <img src="{% static 'img/logo_hh.png' %}" alt="Descripción de la imagen" class="img-fluid" style="max-width: 30%;">
+
+                        <hr style="border-color: #000000;">
+                        
+                        {% if request.user.is_authenticated %}
+                            <!-- Mensaje de bienvenida para usuarios autenticados -->
+                            <h2 style="color: #000000;">
+                                Bienvenido, {{ user.first_name }} {{ user.last_name }}.
+
+                            </h2>
+                            <a class="btn btn-primary" href="{% url 'lista' %}">Busca tu profesional</a>
+                        {% else %}
+                            <!-- Mensaje de introducción -->
+                            <p class="mb-3" style="font-size: 25px; color: #000000;">
+                                Conéctate con profesionales calificados para realizar tus proyectos y reparaciones del hogar.
+                            </p>
+                            <p class="mb-3" style="font-size: 25px; color: #000000;">
+                                Inicia sesión para comenzar.
+                            </p>
+
+                            <!-- Sección de botones -->
+                            <div class="row">
+                                <!-- Botón Iniciar Sesión -->
+                                <div class="col-md-6 mb-3">
+                                    <h4 style="font-weight: bold; color: #000000;">¿Ya tienes cuenta?</h4>
+                                    <a class="btn btn-primary btn-lg" style="width: 100%;" href="{% url 'auth:login' %}">
+                                        Iniciar sesión
+                                    </a>
+                                </div>
+
+                                <!-- Botón Registrarse -->
+                                <div class="col-md-6">
+                                    <h4 style="font-weight: bold; color: #000000;">¿Eres nuevo?</h4>
+                                    <a class="btn btn-success btn-lg" style="width: 100%;" href="{% url 'register' %}">
+                                        ¡Regístrate ahora!
+                                    </a>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Sección Especialidades -->
+        <div class="container text-center mb-5">
+            <h2 class="mb-4" style="font-weight: bold; color: #000000;">Encuentra profesionales en las siguientes especialidades:</h2>
+            <div class="row justify-content-center g-4">
+                <!-- Card Gasfitería -->
+                <div class="col-md-4">
+                    <div class="card shadow-sm h-100">
+                        <img src="{% static 'img/fontanero.jpg' %}" class="card-img-top" alt="Gasfitería">
+                        <div class="card-body">
+                            <h5 class="card-title" style="font-weight: bold;">Gasfitería</h5>
+                            <p class="card-text">Profesionales en instalaciones de agua, reparaciones de cañerías y griferías.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card Electricidad -->
+                <div class="col-md-4">
+                    <div class="card shadow-sm h-100">
+                        <img src="{% static 'img/electricista.jpg' %}" class="card-img-top" alt="Electricidad">
+                        <div class="card-body">
+                            <h5 class="card-title" style="font-weight: bold;">Electricidad</h5>
+                            <p class="card-text">Expertos en instalaciones eléctricas, reparación de cortocircuitos y mantenimiento.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card Terminaciones -->
+                <div class="col-md-4">
+                    <div class="card shadow-sm h-100">
+                        <img src="{% static 'img/terminaciones2.jpg' %}" class="card-img-top" alt="Terminaciones">
+                        <div class="card-body">
+                            <h5 class="card-title" style="font-weight: bold;">Terminaciones</h5>
+                            <p class="card-text">Servicios de pintura, reparación de muros, cerámicas y acabados de alta calidad.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card Gas -->
+                <div class="col-md-4">
+                    <div class="card shadow-sm h-100">
+                        <img src="{% static 'img/gas.jpg' %}" class="card-img-top" alt="Gas">
+                        <div class="card-body">
+                            <h5 class="card-title" style="font-weight: bold;">Instalaciones de Gas</h5>
+                            <p class="card-text">Instalación y mantenimiento de sistemas de gas con certificación profesional.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card Remodelaciones -->
+                <div class="col-md-4">
+                    <div class="card shadow-sm h-100">
+                        <img src="{% static 'img/remodelacion.jpg' %}" class="card-img-top" alt="Remodelaciones">
+                        <div class="card-body">
+                            <h5 class="card-title" style="font-weight: bold;">Remodelaciones</h5>
+                            <p class="card-text">Transforma tus espacios con servicios de remodelación y renovación del hogar.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+    
+{% endblock %}

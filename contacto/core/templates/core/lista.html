@@ -1,0 +1,173 @@
+{% extends 'core/base.html' %}
+
+<div class="container mt-4">
+    {% block content %}
+    <div class="d-flex flex-column align-items-center" style="min-height: 80vh; padding: 20px 0;">
+        <div class="card w-100" style="max-width: 100%; background-color: rgba(255, 255, 255, 0.75); padding: 40px;">
+            <div class="card-body" style="padding: 20px;">
+                <h3 class="lato-bold">Lista de profesionales registrados</h3>
+                <br>
+
+                <script>
+                    const regionesComunas = {{ regiones_comunas|safe }};
+                    document.addEventListener('DOMContentLoaded', function () {
+                        const regionSelect = document.getElementById('id_region');
+                        const comunaSelect = document.getElementById('id_comuna');
+
+                        function updateComunas() {
+                            const selectedRegion = regionSelect.value;
+                            const comunas = regionesComunas[selectedRegion] || [];
+                            
+                            // Incluir la opción "Todas las comunas" al principio
+                            comunaSelect.innerHTML = '<option value="">Todas las comunas</option>' +
+                                comunas.map(comuna => `<option value="${comuna}">${comuna}</option>`).join('');
+                        }
+
+                        // Inicializa las comunas al cargar la página
+                        updateComunas();
+
+                        // Cambia las comunas cuando se selecciona otra región
+                        regionSelect.addEventListener('change', updateComunas);
+                    });
+
+                </script>
+
+                <!-- Formulario de Filtro -->
+                <form method="get" class="mb-3 lato-regular">
+                    <h4>Filtra por especialidad, región o comuna:</h4>
+                    <div class="d-flex gap-3 align-items-end flex-wrap">
+                        <!-- Filtro de Especialidad -->
+                        <div class="form-group">
+                            <label for="id_specialty" style="min-width: 30vh;">Especialidad:</label>
+                            {{ form.specialty }}
+                        </div>
+                
+                        <!-- Filtro de Región -->
+                        <div class="form-group">
+                            <label for="id_region" style="min-width: 30vh;">Región:</label>
+                            {{ form.region }}
+                        </div>
+                
+                        <!-- Filtro de Comuna -->
+                        <div class="form-group">
+                            <label for="id_comuna" style="min-width: 30vh;">Comuna:</label>
+                            {{ form.comuna }}
+                        </div>
+                
+                        <!-- Botón de Filtrar -->
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-primary">Filtrar</button>
+                        </div>
+                    </div>
+                </form>
+                
+                
+                
+
+                <!-- Cards de Profesionales -->
+                <!-- Cards de Profesionales -->
+                <div class="d-flex flex-column gap-3">
+                    {% for professional in professionals %}
+                    <div class="card w-100" style="max-width: 100%;">
+                        <div class="card-body d-flex flex-wrap justify-content-between align-items-center gap-3" style="padding: 50px; ">
+
+                            <!-- Foto de perfil y nombre -->
+                            <div class="text-center flex-grow-1 flex-basis-25" style="min-width: 150px; max-width: 200px;">
+                                <img src="{{ professional.profile.profile_picture.url }}" 
+                                    alt="Foto de {{ professional.first_name }}" 
+                                    class="rounded-circle" 
+                                    style="width: 150px; height: 150px; object-fit: cover;">
+                                <h5 class="card-title text-capitalize mt-2">{{ professional.first_name }} {{ professional.last_name }}</h5>
+                            </div>
+                            
+                            <!-- Datos de contacto -->
+                            <div class="flex-grow-1 flex-basis-25" style="min-width: 300px; max-width: 400px; border-right: 1px solid #ddd; padding-right: 30px; border-left: 1px solid #ddd; padding-left: 30px;">
+                                <h5 class="card-title text-capitalize">Datos de contacto</h5>
+                                <p class="card-text mb-1"><strong>Correo:</strong> {{ professional.email }}</p>
+                                <p class="card-text mb-1"><strong>Teléfono:</strong> {{ professional.telefono }}</p>
+                                <p class="card-text mb-1"><strong>Dirección:</strong> {{ professional.location }}</p>
+                                <p class="card-text mb-1"><strong>Región:</strong> {{ professional.region }}</p>
+                                <p class="card-text mb-1"><strong>Comuna:</strong> {{ professional.comuna }}</p>
+                                <p class="card-text mb-1">
+                                    <strong>Calificación:</strong>
+                                    <span id="rating-stars-{{ professional.id }}" data-rating="{{ professional.average_rating|default:0 }}"></span>
+                                    {% if professional.average_rating %}
+                                        ({{ professional.average_rating|floatformat:1 }} / 5)
+                                    {% else %}
+                                        
+                                    {% endif %}
+                                </p>
+                               
+
+                                <script>
+                                    document.addEventListener('DOMContentLoaded', function () {
+                                        const maxStars = 5; // Máximo número de estrellas
+                                
+                                        // Generar estrellas para cada profesional
+                                        document.querySelectorAll('[id^="rating-stars-"]').forEach(container => {
+                                            const professionalId = container.id.split('-')[2]; // Extraer el ID del profesional
+                                            const averageRating = parseFloat(container.dataset.rating); // Leer la calificación promedio desde data-rating
+                                
+                                            // Limpia el contenedor antes de generar las estrellas
+                                            container.innerHTML = '';
+                                
+                                            // Generar estrellas llenas y vacías
+                                            for (let i = 1; i <= maxStars; i++) {
+                                                const star = document.createElement('span');
+                                                if (i <= Math.floor(averageRating)) {
+                                                    star.innerHTML = '&#9733;'; // Estrella llena
+                                                    star.style.color = 'gold';
+                                                } else {
+                                                    star.innerHTML = '&#9734;'; // Estrella vacía
+                                                    star.style.color = 'gray';
+                                                }
+                                                star.style.marginRight = '2px';
+                                                container.appendChild(star);
+                                            }
+                                        });
+                                    });
+                                </script>
+                                
+                            </div>
+
+                            <!-- Especialidades -->
+                            <div class="flex-grow-1 flex-basis-25 align-self-start" style="min-width: 200px; max-width: 250px; ">
+                                <h5 class="card-title text-capitalize">Especialidades</h5>
+                                <ul class="list-unstyled">
+                                    {% for specialty in professional.profile.specialties.all %}
+                                        <li>{{ specialty.name }}</li>
+                                    {% empty %}
+                                        <li>Sin especialidades</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+
+                           
+                            <!-- Botones -->
+                            <div class="d-flex flex-column gap-2 flex-grow-1 flex-basis-25 text-center" style="min-width: 150px; max-width: 200px; border-left: 1px solid #ddd; padding-left: 30px;">
+                                <a href="{% url 'professional_detail' professional.id %}" class="btn btn-warning btn-sm">
+                                    Ver Perfil
+                                </a>
+                                {% if professional.telefono %}
+                                <a href="https://wa.me/{{ professional.telefono }}" target="_blank" class="btn btn-success btn-sm">
+                                    Enviar WhatsApp
+                                </a>
+                                {% else %}
+                                <button class="btn btn-secondary btn-sm" disabled>No disponible</button>
+                                {% endif %}
+                                <a href="{% url 'chat:create_chat' professional.id %}" class="btn btn-primary btn-sm">
+                                    Iniciar Chat
+                                </a>
+                            </div>
+
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+    {% endblock %}
+</div>

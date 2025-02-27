@@ -1,0 +1,92 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+
+<div class="card" style="background-color: #ffffff6a;">
+    <div class="d-flex flex-column align-items-center" style="min-height: 100vh; color: #fff;">
+        <script>
+            const regionesComunas = {{ regiones_comunas|safe }};
+            document.addEventListener('DOMContentLoaded', function () {
+                const regionSelect = document.getElementById('id_region');
+                const comunaSelect = document.getElementById('id_comuna');
+    
+                function updateComunas() {
+                    const selectedRegion = regionSelect.value;
+                    const comunas = regionesComunas[selectedRegion] || [];
+                    comunaSelect.innerHTML = comunas.map(comuna => `<option value="${comuna}">${comuna}</option>`).join('');
+                }
+    
+                // Inicializa las comunas al cargar la página
+                updateComunas();
+    
+                // Cambia las comunas cuando se selecciona otra región
+                regionSelect.addEventListener('change', updateComunas);
+            });
+        </script>
+        <!-- Formulario de Registro -->
+        <div class="container py-5">
+            <div class="row justify-content-center">
+                <div class="col-lg-8 col-md-10 col-sm-12">
+                    <div class="card" style="background-color: rgba(255, 255, 255, 0.9);">
+                        <div class="card-body" style="padding: 50px;">
+                            <h3 class="text-center my-4" style="color: #000000; font-weight: bold;">Registro de usuario</h3>
+                            <hr>
+                            <h5 class="card-title" style="color: #000000;">Complete todos los campos (obligatorio)</h5>
+                            <br>
+
+                            <!-- Mostrar mensajes generales -->
+                            {% if messages %}
+                                <div class="mb-3">
+                                    {% for message in messages %}
+                                        <div class="alert 
+                                                {% if message.tags == 'success' %}alert-success
+                                                {% elif message.tags == 'error' %}alert-danger
+                                                {% elif message.tags == 'warning' %}alert-warning
+                                                {% else %}alert-info{% endif %}">
+                                            {{ message }}
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <br>
+
+                            <!-- Formulario -->
+                            <form action="" method="post" class="needs-validation" novalidate>
+                                {% csrf_token %}
+
+                                <!-- Renderizar campos -->
+                                <div class="row g-3">
+                                    {% for field in form.visible_fields %}
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            {{ field.label_tag }}
+                                            {{ field }}
+                                            {% if field.help_text %}
+                                                <small class="form-text text-muted">{{ field.help_text }}</small>
+                                            {% endif %}
+                                            <div class="text-danger">{{ field.errors }}</div>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+
+                                <!-- Enlaces y Botón -->
+                                <div class="d-flex justify-content-between mt-4">
+                                    <a href="{% url 'home' %}" class="card-link" style="color: #000000; font-weight: bold;">Inicio</a>
+                                    <a href="{% url 'auth:login' %}" class="card-link" style="color: #000000; font-weight: bold;">Iniciar sesión</a>
+                                </div>
+
+                                <div class="text-end mt-4">
+                                    <button class="btn btn-primary btn-sm" type="submit">Registrarse</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}

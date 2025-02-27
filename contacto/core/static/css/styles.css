@@ -1,0 +1,27 @@
+*{
+    font-family: Lato, sans-serif;
+}
+
+body {
+    background-image: url('/static/img/background.jpg');
+    background-size: cover; /* Ajusta la imagen para que ocupe toda la pantalla */
+    background-position: center; /* Centra la imagen */
+    background-repeat: no-repeat; /* Evita que la imagen se repita */
+    color: rgb(255, 255, 255);
+    margin: 0;
+    padding: 0;
+}
+
+.lato-regular {
+    font-family: "Lato", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+  }
+  
+  .lato-bold {
+    font-family: "Lato", sans-serif;
+    font-weight: 700;
+    font-style: normal;
+  }
+  
+
