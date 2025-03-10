@@ -3,7 +3,7 @@
 <div class="container mt-4">
     {% block content %}
     <div class="d-flex flex-column align-items-center" style="min-height: 80vh; padding: 20px 0;">
-        <div class="card w-100" style="max-width: 100%; background-color: rgba(255, 255, 255, 0.75); padding: 40px;">
+        <div class="card w-100" style="max-width: 100%; background-color: rgba(255, 255, 255, 0.75); padding: 5px;">
             <div class="card-body" style="padding: 20px;">
                 <h3 class="lato-bold">Lista de profesionales registrados</h3>
                 <br>
@@ -65,74 +65,39 @@
                 
 
                 <!-- Cards de Profesionales -->
-                <!-- Cards de Profesionales -->
                 <div class="d-flex flex-column gap-3">
                     {% for professional in professionals %}
-                    <div class="card w-100" style="max-width: 100%;">
-                        <div class="card-body d-flex flex-wrap justify-content-between align-items-center gap-3" style="padding: 50px; ">
-
-                            <!-- Foto de perfil y nombre -->
-                            <div class="text-center flex-grow-1 flex-basis-25" style="min-width: 150px; max-width: 200px;">
+                    <div class="card">
+                        <div class="card-body row align-items-center text-center text-md-start">
+                            <!-- Foto de perfil -->
+                            <div class="col-md-2 col-12 d-flex flex-column align-items-center">
                                 <img src="{{ professional.profile.profile_picture.url }}" 
                                     alt="Foto de {{ professional.first_name }}" 
                                     class="rounded-circle" 
-                                    style="width: 150px; height: 150px; object-fit: cover;">
+                                    style="width: 140px; height: 140px; object-fit: cover;">
                                 <h5 class="card-title text-capitalize mt-2">{{ professional.first_name }} {{ professional.last_name }}</h5>
                             </div>
                             
                             <!-- Datos de contacto -->
-                            <div class="flex-grow-1 flex-basis-25" style="min-width: 300px; max-width: 400px; border-right: 1px solid #ddd; padding-right: 30px; border-left: 1px solid #ddd; padding-left: 30px;">
-                                <h5 class="card-title text-capitalize">Datos de contacto</h5>
-                                <p class="card-text mb-1"><strong>Correo:</strong> {{ professional.email }}</p>
-                                <p class="card-text mb-1"><strong>Teléfono:</strong> {{ professional.telefono }}</p>
-                                <p class="card-text mb-1"><strong>Dirección:</strong> {{ professional.location }}</p>
-                                <p class="card-text mb-1"><strong>Región:</strong> {{ professional.region }}</p>
-                                <p class="card-text mb-1"><strong>Comuna:</strong> {{ professional.comuna }}</p>
-                                <p class="card-text mb-1">
+                            <div class="col-md-4 col-12">
+                                <h5 class="card-title">Datos de contacto</h5>
+                                <p class="mb-1"><strong>Correo:</strong> {{ professional.email }}</p>
+                                <p class="mb-1"><strong>Teléfono:</strong> {{ professional.telefono }}</p>
+                                <p class="mb-1"><strong>Dirección:</strong> {{ professional.location }}</p>
+                                <p class="mb-1"><strong>Región:</strong> {{ professional.region }}</p>
+                                <p class="mb-1"><strong>Comuna:</strong> {{ professional.comuna }}</p>
+                                <p class="mb-1">
                                     <strong>Calificación:</strong>
                                     <span id="rating-stars-{{ professional.id }}" data-rating="{{ professional.average_rating|default:0 }}"></span>
                                     {% if professional.average_rating %}
                                         ({{ professional.average_rating|floatformat:1 }} / 5)
-                                    {% else %}
-                                        
                                     {% endif %}
                                 </p>
-                               
-
-                                <script>
-                                    document.addEventListener('DOMContentLoaded', function () {
-                                        const maxStars = 5; // Máximo número de estrellas
-                                
-                                        // Generar estrellas para cada profesional
-                                        document.querySelectorAll('[id^="rating-stars-"]').forEach(container => {
-                                            const professionalId = container.id.split('-')[2]; // Extraer el ID del profesional
-                                            const averageRating = parseFloat(container.dataset.rating); // Leer la calificación promedio desde data-rating
-                                
-                                            // Limpia el contenedor antes de generar las estrellas
-                                            container.innerHTML = '';
-                                
-                                            // Generar estrellas llenas y vacías
-                                            for (let i = 1; i <= maxStars; i++) {
-                                                const star = document.createElement('span');
-                                                if (i <= Math.floor(averageRating)) {
-                                                    star.innerHTML = '&#9733;'; // Estrella llena
-                                                    star.style.color = 'gold';
-                                                } else {
-                                                    star.innerHTML = '&#9734;'; // Estrella vacía
-                                                    star.style.color = 'gray';
-                                                }
-                                                star.style.marginRight = '2px';
-                                                container.appendChild(star);
-                                            }
-                                        });
-                                    });
-                                </script>
-                                
                             </div>
 
                             <!-- Especialidades -->
-                            <div class="flex-grow-1 flex-basis-25 align-self-start" style="min-width: 200px; max-width: 250px; ">
-                                <h5 class="card-title text-capitalize">Especialidades</h5>
+                            <div class="col-md-3 col-12">
+                                <h5 class="card-title">Especialidades</h5>
                                 <ul class="list-unstyled">
                                     {% for specialty in professional.profile.specialties.all %}
                                         <li>{{ specialty.name }}</li>
@@ -142,28 +107,43 @@
                                 </ul>
                             </div>
 
-                           
                             <!-- Botones -->
-                            <div class="d-flex flex-column gap-2 flex-grow-1 flex-basis-25 text-center" style="min-width: 150px; max-width: 200px; border-left: 1px solid #ddd; padding-left: 30px;">
-                                <a href="{% url 'professional_detail' professional.id %}" class="btn btn-warning btn-sm">
+                            <div class="col-md-3 col-12 d-flex flex-column gap-2">
+                                <a href="{% url 'professional_detail' professional.id %}" class="btn btn-warning btn-sm w-100">
                                     Ver Perfil
                                 </a>
                                 {% if professional.telefono %}
-                                <a href="https://wa.me/{{ professional.telefono }}" target="_blank" class="btn btn-success btn-sm">
+                                <a href="https://wa.me/{{ professional.telefono }}" target="_blank" class="btn btn-success btn-sm w-100">
                                     Enviar WhatsApp
                                 </a>
                                 {% else %}
-                                <button class="btn btn-secondary btn-sm" disabled>No disponible</button>
+                                <button class="btn btn-secondary btn-sm w-100" disabled>No disponible</button>
                                 {% endif %}
-                                <a href="{% url 'chat:create_chat' professional.id %}" class="btn btn-primary btn-sm">
+                                <a href="{% url 'chat:create_chat' professional.id %}" class="btn btn-primary btn-sm w-100">
                                     Iniciar Chat
                                 </a>
                             </div>
-
                         </div>
                     </div>
                     {% endfor %}
                 </div>
+
+                <script>
+                    document.addEventListener('DOMContentLoaded', function () {
+                        const maxStars = 5;
+                        document.querySelectorAll('[id^="rating-stars-"]').forEach(container => {
+                            const averageRating = parseFloat(container.dataset.rating);
+                            container.innerHTML = '';
+                            for (let i = 1; i <= maxStars; i++) {
+                                const star = document.createElement('span');
+                                star.innerHTML = i <= Math.floor(averageRating) ? '&#9733;' : '&#9734;';
+                                star.style.color = i <= Math.floor(averageRating) ? 'gold' : 'gray';
+                                star.style.marginRight = '2px';
+                                container.appendChild(star);
+                            }
+                        });
+                    });
+                </script>
 
 
             </div>
